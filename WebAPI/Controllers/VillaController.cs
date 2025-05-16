@@ -11,11 +11,30 @@ namespace WebAPI.Controllers
     [ApiController]
     public class VillaController : ControllerBase
     {
+        private readonly ILogger<VillaController> _logger;
+
+        public VillaController(ILogger<VillaController> logger)
+        {
+            _logger = logger;    
+        }
+
+        /// <summary>
+        /// GET
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public ActionResult<IEnumerable<VillaDto>> GetVillas()
         {
+            _logger.LogInformation("Obtener las villas");
             return Ok(VillaStore.villaList);
         }
+
+        /// <summary>
+        /// GET(id)
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
 
         [HttpGet("id:int", Name ="GetVilla")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -26,6 +45,7 @@ namespace WebAPI.Controllers
         {
             if(id == 0)
             {
+                _logger.LogError("Error al traer la villa con el id " + id);
                 return BadRequest();
             }
 
@@ -33,12 +53,18 @@ namespace WebAPI.Controllers
 
             if (villa == null) 
             {
+                _logger.LogError("La villa " + id + " no existe.");
                 return NotFound();
             }
 
             return Ok(villa);
         }
 
+        /// <summary>
+        /// Create
+        /// </summary>
+        /// <param name="villaDto"></param>
+        /// <returns></returns>
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -73,6 +99,11 @@ namespace WebAPI.Controllers
             return CreatedAtRoute("GetVilla", new {id = villaDto.Id});
         }
 
+        /// <summary>
+        /// Delete
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpDelete]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -96,7 +127,13 @@ namespace WebAPI.Controllers
             return NoContent();
         }
 
-        [HttpPut("{id:int}")] // update all
+        /// <summary>
+        /// Update all
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="villaDto"></param>
+        /// <returns></returns>
+        [HttpPut("{id:int}")] 
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
 
@@ -115,7 +152,13 @@ namespace WebAPI.Controllers
             return NoContent();
         }
 
-        [HttpPatch("{id:int}")] // update partial
+        /// <summary>
+        ///  Update partial
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="patchDto"></param>
+        /// <returns></returns>
+        [HttpPatch("{id:int}")] 
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
 
