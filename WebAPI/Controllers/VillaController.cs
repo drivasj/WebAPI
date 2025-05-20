@@ -74,7 +74,7 @@ namespace WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public ActionResult<VillaDto> CrearVilla([FromBody] VillaDto villaDto)
+        public ActionResult<VillaDto> CrearVilla([FromBody] VillaCreateDto villaDto)
         {
 
             if (_context.Villas.FirstOrDefault(x => x.Name.ToLower() == villaDto.Name.ToLower()) != null)
@@ -93,17 +93,17 @@ namespace WebAPI.Controllers
                 return BadRequest(villaDto);
             }
 
-            if (villaDto.Id > 0)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError);
-            }
+            //if (villaDto.Id > 0)
+            //{
+            //    return StatusCode(StatusCodes.Status500InternalServerError);
+            //}
 
             //villaDto.Id = VillaStore.villaList.OrderByDescending(x => x.Id).FirstOrDefault().Id + 1;
             //VillaStore.villaList.Add(villaDto);
 
             Villa model = new()
             {
-                Id = villaDto.Id,
+                //Id = villaDto.Id,
                 Name = villaDto.Name,
                 Detail = villaDto.Detail,
                 ImageUrl = villaDto.ImageUrl,
@@ -116,7 +116,7 @@ namespace WebAPI.Controllers
             _context.Villas.Add(model);
             _context.SaveChanges();
 
-            return CreatedAtRoute("GetVilla", new { id = villaDto.Id });
+            return CreatedAtRoute("GetVilla", new { id = model.Id },villaDto);
         }
 
         /// <summary>
@@ -160,7 +160,7 @@ namespace WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
 
-        public IActionResult UpdateVilla(int id, [FromBody] VillaDto villaDto)
+        public IActionResult UpdateVilla(int id, [FromBody] VillaUpdateDto villaDto)
         {
             if (villaDto is null || id != villaDto.Id)
             {
@@ -201,7 +201,7 @@ namespace WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
 
-        public IActionResult UpdatePartialVilla(int id, JsonPatchDocument<VillaDto> patchDto)
+        public IActionResult UpdatePartialVilla(int id, JsonPatchDocument<VillaUpdateDto> patchDto)
         {
             if (patchDto is null || id == 0)
             {
@@ -212,7 +212,7 @@ namespace WebAPI.Controllers
 
             var villa = _context.Villas.AsNoTracking().FirstOrDefault(v => v.Id == id);
 
-            VillaDto villaDto = new()
+            VillaUpdateDto villaDto = new()
             {
                 Id = villa.Id,
                 Name = villa.Name,
