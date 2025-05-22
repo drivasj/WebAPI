@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using WebAPI;
 using WebAPI.Dates;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,8 +13,12 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<ApplicationDbContext>(option =>
 {
-    option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")); // SQL Server
 });
+
+//Automapper
+builder.Services.AddAutoMapper(typeof(MappingConfig));
+
 
 var app = builder.Build();
 
