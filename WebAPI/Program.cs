@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using WebAPI;
 using WebAPI.Dates;
+using WebAPI.Repository;
+using WebAPI.Repository.IRepository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +13,8 @@ builder.Services.AddControllers().AddNewtonsoftJson();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+
+// SqlServer
 builder.Services.AddDbContext<ApplicationDbContext>(option =>
 {
     option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")); // SQL Server
@@ -18,6 +22,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(option =>
 
 //Automapper
 builder.Services.AddAutoMapper(typeof(MappingConfig));
+
+//IVillaRepository
+builder.Services.AddScoped<IVillaRepository, VillaRepository>();
 
 
 var app = builder.Build();

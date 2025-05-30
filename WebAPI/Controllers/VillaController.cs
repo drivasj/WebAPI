@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using WebAPI.Dates;
 using WebAPI.Models;
 using WebAPI.Models.Dto;
+using WebAPI.Repository.IRepository;
 
 namespace WebAPI.Controllers
 {
@@ -14,14 +15,16 @@ namespace WebAPI.Controllers
     public class VillaController : ControllerBase
     {
         private readonly ILogger<VillaController> _logger;
-        private readonly ApplicationDbContext _context;
+        private readonly IVillaRepository _villaRepository;
         private readonly IMapper _mapper;
+        protected APIResponse _apiResponse;
 
-        public VillaController(ILogger<VillaController> logger, ApplicationDbContext dbContext, IMapper mapper)
+        public VillaController(ILogger<VillaController> logger, IVillaRepository villaRepository, IMapper mapper)
         {
             _logger = logger;
-            _context = dbContext;
+            _villaRepository = villaRepository;
             _mapper = mapper;
+            _apiResponse = new APIResponse();
         }
 
         /// <summary>
@@ -34,7 +37,7 @@ namespace WebAPI.Controllers
         {
             _logger.LogInformation("Obtener las villas");
 
-            IEnumerable<Villa> villaList = await _context.Villas.ToListAsync();
+            IEnumerable<Villa> villaList = await _villaRepository.GetAll();
 
             var mapVilla = _mapper.Map<IEnumerable<VillaDto>>(villaList);
 
@@ -60,9 +63,7 @@ namespace WebAPI.Controllers
                 return BadRequest();
             }
 
-            //  var villa = VillaStore.villaList.FirstOrDefault(x => x.Id == id);
-
-            var villa = await _context.Villas.FirstOrDefaultAsync(x => x.Id == id);
+            var villa = await _villaRepository.Get(x => x.Id == id);
 
             if (villa == null)
             {
@@ -86,7 +87,7 @@ namespace WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<VillaDto>> CrearVilla([FromBody] VillaCreateDto createDto)
         {
-            if (await _context.Villas.FirstOrDefaultAsync(x => x.Name.ToLower() == createDto.Name.ToLower()) != null)
+            if (await _villaRepository.Get(x => x.Name.ToLower() == createDto.Name.ToLower()) != null)
             {
                 ModelState.AddModelError("NombreExiste", "La villa con ese nombre ya existe!");
                 return BadRequest(ModelState);
@@ -104,8 +105,7 @@ namespace WebAPI.Controllers
 
             Villa model = _mapper.Map<Villa>(createDto);
 
-            await _context.Villas.AddAsync(model);
-            await _context.SaveChangesAsync();
+            await _villaRepository.Create(model);
 
             return CreatedAtRoute("GetVilla", new { id = model.Id }, createDto);
         }
@@ -126,16 +126,15 @@ namespace WebAPI.Controllers
                 return BadRequest(ModelState);
             }
 
-            var villa = await _context.Villas.FirstOrDefaultAsync(x => x.Id == id);
+            var villa = await _villaRepository.Get(x => x.Id == id);
 
             if (villa == null)
             {
                 return NotFound();
             }
 
-            _context.Villas.Remove(villa);
-            await _context.SaveChangesAsync();
-
+            await _villaRepository.Remove(villa);
+            
             return NoContent();
         }
 
@@ -158,8 +157,7 @@ namespace WebAPI.Controllers
 
             Villa model = _mapper.Map<Villa>(updateDto);
 
-            await _context.Villas.AddAsync(model);
-            await _context.SaveChangesAsync();
+            await _villaRepository.Update(model);
 
             return NoContent();
         }
@@ -181,9 +179,9 @@ namespace WebAPI.Controllers
                 return BadRequest(ModelState);
             }
 
-            var villa = await _context.Villas.AsNoTracking().FirstOrDefaultAsync(v => v.Id == id);
+            var villa = await _villaRepository.Get(v => v.Id == id, tracked:false);
 
-            VillaUpdateDto villaDto = _mapper.Map<VillaUpdateDto>(villa);  
+            VillaUpdateDto villaDto = _mapper.Map<VillaUpdateDto>(villa);
 
             if (villa == null) return BadRequest();
 
@@ -196,8 +194,7 @@ namespace WebAPI.Controllers
 
             Villa model = _mapper.Map<Villa>(villaDto);
 
-            _context.Villas.Update(model);
-            await _context.SaveChangesAsync();
+            await _villaRepository.Update(model);
 
             return NoContent();
         }
