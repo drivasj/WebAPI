@@ -26,6 +26,9 @@ builder.Services.AddAutoMapper(typeof(MappingConfig));
 //IVillaRepository
 builder.Services.AddScoped<IVillaRepository, VillaRepository>();
 
+//INumVillaRepository
+builder.Services.AddScoped<INumVillaRepository, NumVillaRepository>();
+
 
 var app = builder.Build();
 

@@ -13,6 +13,11 @@ namespace WebAPI
 
             CreateMap<Villa, VillaCreateDto>().ReverseMap();
             CreateMap<Villa, VillaUpdateDto>().ReverseMap();
+
+            CreateMap<NumVilla, NumVillaUpdateDto>().ReverseMap();
+            CreateMap<NumVilla, NumVillaCreateDto>().ReverseMap();
+            CreateMap<NumVilla, NumVillaDto>().ReverseMap();
+
         }
     }
 }

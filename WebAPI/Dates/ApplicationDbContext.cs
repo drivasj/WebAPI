@@ -11,6 +11,8 @@ namespace WebAPI.Dates
 
         }
         public DbSet<Villa> Villas { get; set; }
+        public DbSet<NumVilla> numVillas { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
